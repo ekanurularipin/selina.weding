@@ -526,97 +526,72 @@
  
   <!-- protokol end -->
   <!-- Ucapan start -->
-<section class="bg-wakwak">
-    <div class="container py-5">
-        <div class="row text-center justify-content-center">
-            <div class="col-12 mb-5" data-aos="zoom-in" data-aos-duration="1300" data-aos-delay="2250">
-                <h1 class="font-dancing fs-40">Wishes</h1>
-                <p class="p-0 m-0">Doa Restu Anda merupakan karunia</p>
-                <p class="p-0 m-0">yang sangat berarti bagi kami.</p>
-            </div>
-            <div class="col-md-10 col-12 mx-2" data-aos="zoom-in" data-aos-duration="1300" data-aos-delay="2500">
-                <div class="card bg-fee rounded-3 p-3">
-                    <form id="wishesForm">
-                        <div class="mb-3">
-                            <input type="text" name="nama" id="nama" placeholder="Nama" class="form-control" required />
-                        </div>
-                        <div class="mb-3">
-                            <textarea name="ucapan" id="ucapan" placeholder="Ucapan" rows="4" class="form-control" required></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <select name="konfirmasi" id="konfirmasi" class="form-select" required>
-                                <option disabled selected>Konfirmasi Kehadiran</option>
-                                <option value="Hadir">Hadir</option>
-                                <option value="Tidak Hadir">Tidak Hadir</option>
-                            </select>
-                        </div>
-                        <div class="mb-3 text-start">
-                            <button type="submit" class="btn bg-berem btn-outline-secondary text-white">Kirim</button>
-                        </div>
-                    </form>
+ <section class="bg-wakwak">
+        <div class="container py-5">
+            <div class="row text-center justify-content-center">
+                <div class="col-12 mb-5" data-aos="zoom-in" data-aos-duration="1300">
+                    <h1 class="font-dancing fs-40">Wishes</h1>
+                    <p>Doa Restu Anda sangat berarti bagi kami.</p>
+                </div>
+                <div class="col-md-10 col-12 mx-2">
+                    <div class="card bg-fee rounded-3 p-3">
+                        <form id="wishesForm" method="POST" 
+                        action="https://script.google.com/macros/s/AKfycbwLoP-q1EMVxvCXw1vIoEAkDfuaQGE5IpcKKe7Lxqt382g1DkOwp1nmFZPMc14Mb9Z2/exec">
+                            <div class="mb-3">
+                                <input type="text" name="nama" id="nama" placeholder="Nama" class="form-control" required />
+                            </div>
+                            <div class="mb-3">
+                                <textarea name="ucapan" id="ucapan" placeholder="Ucapan" rows="4" class="form-control" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <select name="konfirmasi" id="konfirmasi" class="form-select" required>
+                                    <option disabled selected>Konfirmasi Kehadiran</option>
+                                    <option value="Hadir">Hadir</option>
+                                    <option value="Tidak Hadir">Tidak Hadir</option>
+                                </select>
+                            </div>
+                            <div class="mb-3 text-start">
+                                <button type="submit" class="btn bg-berem btn-outline-secondary text-white">Kirim</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-10 col-12 mx-2 mt-4">
+                    <h2 class="text-center">Ucapan Terkini</h2>
+                    <div id="wishesList" class="mt-3"></div>
                 </div>
             </div>
-            <div class="col-md-10 col-12 mx-2 mt-4">
-                <h2 class="text-center">Ucapan Terkini</h2>
-                <div id="wishesList" class="mt-3"></div>
-            </div>
         </div>
-    </div>
-</section>
+    </section>
+    <script>
+      const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwAMoXuMoIudk0hX6NhcpgR_k5dDHPo2xPgXks7B44b95vkGLIw49p_1bmyMPrVXeWo/exec";
 
-<script>
-    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwXxSoZIbiI7Jv6AZHHWYQANPlvVAVKkEZq87jij5c0dNWZRIBih9ZE0nNBhMa411pE/exec";
-    
-    document.addEventListener("DOMContentLoaded", async function() {
-        const wishesList = document.getElementById("wishesList");
-        
-        // Fetch existing wishes from Google Sheets
-        try {
-            const response = await fetch(SHEET_API_URL);
-            const data = await response.json();
+        document.addEventListener("DOMContentLoaded", async function() {
+            const wishesList = document.getElementById("wishesList");
             
-            data.forEach(wish => {
-                const newWish = document.createElement("div");
-                newWish.classList.add("card", "p-3", "mb-2", "bg-light");
-                newWish.innerHTML = `<strong>${wish.nama}</strong> (${wish.konfirmasi})<br> <p>${wish.ucapan}</p>`;
-                wishesList.prepend(newWish);
-            });
-        } catch (error) {
-            console.error("Error fetching wishes: ", error);
-        }
-    });
+            try {
+                const response = await fetch(SHEET_API_URL);
+                const result = await response.json();
 
-    document.getElementById("wishesForm").addEventListener("submit", async function(event) {
-        event.preventDefault();
-        
-        // Ambil data dari input
-        const nama = document.getElementById("nama").value;
-        const ucapan = document.getElementById("ucapan").value;
-        const konfirmasi = document.getElementById("konfirmasi").value;
-        
-        const wishesList = document.getElementById("wishesList");
-        
-        // Kirim data ke Google Sheets
-        try {
-            await fetch(SHEET_API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ nama, ucapan, konfirmasi })
-            });
-            
-            // Tambahkan data baru ke tampilan
-            const newWish = document.createElement("div");
-            newWish.classList.add("card", "p-3", "mb-2", "bg-light");
-            newWish.innerHTML = `<strong>${nama}</strong> (${konfirmasi})<br> <p>${ucapan}</p>`;
-            wishesList.prepend(newWish);
-            
-            // Reset form
-            document.getElementById("wishesForm").reset();
-        } catch (error) {
-            console.error("Error sending wish: ", error);
-        }
-    });
-</script>
+                if (!result.data || result.data.length === 0) {
+                    wishesList.innerHTML = "<p class='text-muted'>Belum ada ucapan.</p>";
+                    return;
+                }
+
+                result.data.forEach(wish => {
+                    const newWish = document.createElement("div");
+                    newWish.classList.add("card", "p-3", "mb-2", "bg-light");
+                    newWish.innerHTML = `<strong>${wish.nama}</strong> (${wish.konfirmasi})<br> <p>${wish.ucapan}</p>`;
+                    wishesList.prepend(newWish);
+                });
+            } catch (error) {
+                console.error("Error fetching wishes:", error);
+                wishesList.innerHTML = "<p class='text-danger'>Gagal memuat data.</p>";
+            }
+        });
+
+      
+  </script>
 
   <!-- Ucapan end -->
   <!-- salam start -->
