@@ -526,7 +526,7 @@
  
   <!-- protokol end -->
   <!-- Ucapan start -->
-  <section class="bg-wakwak">
+<section class="bg-wakwak">
     <div class="container py-5">
         <div class="row text-center justify-content-center">
             <div class="col-12 mb-5" data-aos="zoom-in" data-aos-duration="1300" data-aos-delay="2250">
@@ -565,21 +565,28 @@
 </section>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Ambil data dari localStorage
-        const savedWishes = JSON.parse(localStorage.getItem("wishes")) || [];
+    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzHMq2cpqNfGX6vUkfj-eMxHtwA_6kicDI80VBE1VQQ8lkAcBZwE6vB-18sBXfhvjnH/exec";
+    
+    document.addEventListener("DOMContentLoaded", async function() {
         const wishesList = document.getElementById("wishesList");
         
-        // Tampilkan data yang sudah disimpan
-        savedWishes.forEach(wish => {
-            const newWish = document.createElement("div");
-            newWish.classList.add("card", "p-3", "mb-2", "bg-light");
-            newWish.innerHTML = `<strong>${wish.nama}</strong> (${wish.konfirmasi})<br> <p>${wish.ucapan}</p>`;
-            wishesList.prepend(newWish);
-        });
+        // Fetch existing wishes from Google Sheets
+        try {
+            const response = await fetch(SHEET_API_URL);
+            const data = await response.json();
+            
+            data.forEach(wish => {
+                const newWish = document.createElement("div");
+                newWish.classList.add("card", "p-3", "mb-2", "bg-light");
+                newWish.innerHTML = `<strong>${wish.nama}</strong> (${wish.konfirmasi})<br> <p>${wish.ucapan}</p>`;
+                wishesList.prepend(newWish);
+            });
+        } catch (error) {
+            console.error("Error fetching wishes: ", error);
+        }
     });
 
-    document.getElementById("wishesForm").addEventListener("submit", function(event) {
+    document.getElementById("wishesForm").addEventListener("submit", async function(event) {
         event.preventDefault();
         
         // Ambil data dari input
@@ -587,24 +594,30 @@
         const ucapan = document.getElementById("ucapan").value;
         const konfirmasi = document.getElementById("konfirmasi").value;
         
-        // Simpan data di localStorage
-        const savedWishes = JSON.parse(localStorage.getItem("wishes")) || [];
-        savedWishes.push({ nama, ucapan, konfirmasi });
-        localStorage.setItem("wishes", JSON.stringify(savedWishes));
-        
-        // Buat elemen baru untuk menampilkan ucapan
         const wishesList = document.getElementById("wishesList");
-        const newWish = document.createElement("div");
-        newWish.classList.add("card", "p-3", "mb-2", "bg-light");
-        newWish.innerHTML = `<strong>${nama}</strong> (${konfirmasi})<br> <p>${ucapan}</p>`;
         
-        // Tambahkan ke daftar
-        wishesList.prepend(newWish);
-        
-        // Reset form
-        document.getElementById("wishesForm").reset();
+        // Kirim data ke Google Sheets
+        try {
+            await fetch(SHEET_API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nama, ucapan, konfirmasi })
+            });
+            
+            // Tambahkan data baru ke tampilan
+            const newWish = document.createElement("div");
+            newWish.classList.add("card", "p-3", "mb-2", "bg-light");
+            newWish.innerHTML = `<strong>${nama}</strong> (${konfirmasi})<br> <p>${ucapan}</p>`;
+            wishesList.prepend(newWish);
+            
+            // Reset form
+            document.getElementById("wishesForm").reset();
+        } catch (error) {
+            console.error("Error sending wish: ", error);
+        }
     });
 </script>
+
   <!-- Ucapan end -->
   <!-- salam start -->
   <section class="bg-wakwak">
